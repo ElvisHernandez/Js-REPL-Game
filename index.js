@@ -2,7 +2,6 @@ let readlineSync = require('readline-sync');
 
 let userScore = 0;
 let computerScore = 0;
-const startValues = [[" "," "," "], [" "," "," "], [" "," "," "]] // this is a 3x3 matrix containing the tic tac toe values 
 let boardValues = [[" "," "," "], [" "," "," "], [" "," "," "]]
 const referenceValues = [[0,1,2], [3,4,5], [6,7,8]];
 const positionsObject = {
@@ -16,7 +15,6 @@ const positionsObject = {
     7: [2,1],
     8: [2,2]
 }
-
 
 const userName = readlineSync.question("Please enter your name: \n");
 console.log(`Hi there ${userName}, welcome to command line based Tic Tac Toe! \n`);
@@ -52,7 +50,6 @@ function tttBoard (boardValue = boardValues) {   // this function draws the boar
 
 function game (firstToAct) {
     let freePositions = [0,1,2,3,4,5,6,7,8];
-    // boardValues = startValues;
     if (firstToAct == "User") {
         tttBoard(referenceValues);
         console.log("You're first to act! You will have 'X' and the computer will have 'O'. \n");
@@ -68,43 +65,38 @@ function game (firstToAct) {
         tttBoard();
         gameLoop(freePositions);
     }
-    restart();
+    if (freePositions.length == 0 && checkWin() == undefined) {
+        console.log("IT'S A TIE!!!!!")
+        restart();
+    }
+
 }
 
 function gameLoop (freePositions) {
-    while (true) {
+    while (freePositions.length > 0) {
         let location = parseInt(readlineSync.question("Choose a number from 0 to 8 to specify the placement of your tic: \n", 
             {limit: freePositions, limitMessage: "Incorrect input, make sure to input a single integer in the range {0,8}, "
             +"not including already occupied positions."}));
         console.log('\n');
         boardValues[positionsObject[location][0]][positionsObject[location][1]] = 'X';
-        if (checkWin() == 'User') {
+        if (checkWin() !== undefined) {
             break;
-        } else if (checkWin() == 'Computer') {
-            break;
-        };
+        }
         let indexToRemove1 = freePositions.indexOf(location);
         freePositions.splice(indexToRemove1,1);
         if (freePositions.length == 0) {    
-            console.log("IT'S A TIE!!!!! \n");
             break;
         }
         let compPos = freePositions[Math.floor(Math.random()*freePositions.length)];
         boardValues[positionsObject[compPos][0]][positionsObject[compPos][1]] = 'O';
         let indexToRemove2 = freePositions.indexOf(compPos);
         freePositions.splice(indexToRemove2,1);
-        if (checkWin() == 'User') {
+        if (checkWin() !== undefined) {
             break;
-        } else if (checkWin() == 'Computer') {
-            break;
-        };
+        }
         tttBoard();
-        if (freePositions.length == 0) {    
-            console.log("IT'S A TIE!!!!! \n");
-            break;
-        }
-        }
-    tttBoard();
+        }    
+
 }
 
 function checkWin() {
@@ -118,22 +110,22 @@ function checkWin() {
         [boardValues[0][0],boardValues[1][1],boardValues[2][2]],
         [boardValues[0][2],boardValues[1][1],boardValues[2][0]]
     ];
-    let winner;
     for (let i = 0; i < winningCombos.length; i++)  {
-        if (winningCombos[i].join('') == 'XXX') {
+        if (winningCombos[i].join('') === 'XXX') {
             userScore++;
-            winner = 'User';
             console.log('           YOU WON!!!!!');
-            break;
+            tttBoard();
+            restart();
+            return "User";
         }
-        else if (winningCombos[i].join('') == 'OOO') {
+        else if (winningCombos[i].join('') === 'OOO') {
             computerScore++;
-            winner = 'Computer';
             console.log('           YOU LOST!!!!!');
-            break;
+            tttBoard();
+            restart();
+            return "Computer";
         };
     };
-    return winner;
 }
 
 function restart () {
@@ -144,7 +136,7 @@ function restart () {
         startOfGame();
     }
     else {
-        console.log(' GAME OVER \n');
+        return console.log(' GAME OVER \n');
     }
 }
 
