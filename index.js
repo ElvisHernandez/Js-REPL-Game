@@ -24,9 +24,9 @@ console.log(`Hi there ${userName}, welcome to command line based Tic Tac Toe! \n
 
 function startOfGame () { 
     boardValues = [[" "," "," "], [" "," "," "], [" "," "," "]];
-    process.stdout.write('\033c'); // this clears the command line text above it
     const userFlip = readlineSync.question("Input H for heads, or T for tails to see who's going first: \n"
     , {limit: ["H","T"], limitMessage: "Incorrect input, please enter either 'H' for heads or 'T' for tails \n"});
+    process.stdout.write('\033c'); // this clears the command line text above it
     const computerFlip = Math.floor(Math.random()*2);
     if (userFlip === "H" && computerFlip == 1) {
         game("User");
@@ -50,7 +50,7 @@ function tttBoard (boardValue = boardValues) {   // this function draws the boar
 };
 
 
-function game (firstToAct, userScores, computerScores) {
+function game (firstToAct) {
     let freePositions = [0,1,2,3,4,5,6,7,8];
     // boardValues = startValues;
     if (firstToAct == "User") {
@@ -73,7 +73,7 @@ function game (firstToAct, userScores, computerScores) {
 
 function gameLoop (freePositions) {
     while (true) {
-        let location = parseInt(readlineSync.question("Choose a number from 0 to 8 to specify the placement of your 'X': \n", 
+        let location = parseInt(readlineSync.question("Choose a number from 0 to 8 to specify the placement of your tic: \n", 
             {limit: freePositions, limitMessage: "Incorrect input, make sure to input a single integer in the range {0,8}, "
             +"not including already occupied positions."}));
         console.log('\n');
@@ -85,6 +85,10 @@ function gameLoop (freePositions) {
         };
         let indexToRemove1 = freePositions.indexOf(location);
         freePositions.splice(indexToRemove1,1);
+        if (freePositions.length == 0) {    
+            console.log("IT'S A TIE!!!!! \n");
+            break;
+        }
         let compPos = freePositions[Math.floor(Math.random()*freePositions.length)];
         boardValues[positionsObject[compPos][0]][positionsObject[compPos][1]] = 'O';
         let indexToRemove2 = freePositions.indexOf(compPos);
@@ -115,18 +119,20 @@ function checkWin() {
         [boardValues[0][2],boardValues[1][1],boardValues[2][0]]
     ];
     let winner;
-    winningCombos.forEach( combo => {
-        if (combo.join('') == 'XXX') {
+    for (let i = 0; i < winningCombos.length; i++)  {
+        if (winningCombos[i].join('') == 'XXX') {
             userScore++;
             winner = 'User';
             console.log('           YOU WON!!!!!');
+            break;
         }
-        else if (combo.join('') == 'OOO') {
+        else if (winningCombos[i].join('') == 'OOO') {
             computerScore++;
             winner = 'Computer';
             console.log('           YOU LOST!!!!!');
+            break;
         };
-    });
+    };
     return winner;
 }
 
